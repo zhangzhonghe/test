@@ -22,32 +22,32 @@ export function createBlock(options = {}) {
 /**
  * 将元素挂载到容器中
  */
-export function mount(container, element, position) {
+export function mount(container, block, position) {
   position = Object.assign({ x: "0px", y: "0px" }, position);
-  container.appendChild(element);
-  element.style.position = "absolute";
-  element.style.left = position.x;
-  element.style.top = position.y;
-  blockList.push(element);
+  container.appendChild(block);
+  block.style.position = "absolute";
+  block.style.left = position.x;
+  block.style.top = position.y;
+  blockList.push(block);
 }
 
 /**
  * 更新 block 的位置
  */
-export function moveBlock(element, position) {
+export function moveBlock(block, position) {
   position = Object.assign({ x: "0px", y: "0px" }, position);
-  element.style.left = position.x;
-  element.style.top = position.y;
+  block.style.left = position.x;
+  block.style.top = position.y;
 }
 
 /**
- * 获取与当前元素重叠的元素
+ * 获取与当前元素重叠的块
  */
-export function getOverlappingElements(element) {
+export function getOverlappingBlocks(block) {
   const result = [];
-  const elementRect = element.getBoundingClientRect();
+  const elementRect = block.getBoundingClientRect();
   blockList.forEach((item) => {
-    if (item === element) {
+    if (item === block) {
       return;
     }
     const itemRect = item.getBoundingClientRect();

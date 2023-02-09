@@ -1,1 +1,2 @@
-export * from "./block";
+export { createBlock, mount, moveBlock, getOverlappingBlocks } from "./block";
+

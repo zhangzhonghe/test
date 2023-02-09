@@ -2,7 +2,7 @@ import {
   createBlock,
   mount,
   moveBlock,
-  getOverlappingElements,
+  getOverlappingBlocks,
   initList,
 } from "../src/block";
 
@@ -80,8 +80,8 @@ describe("get overlapping elements", () => {
     const block2 = createBlock({ width: "100px", height: "100px" });
     mount(document.body, block1, { x: "0px", y: "0px" });
     mount(document.body, block2, { x: "200px", y: "200px" });
-    expect(getOverlappingElements(block1).length).toBe(0);
-    expect(getOverlappingElements(block2).length).toBe(0);
+    expect(getOverlappingBlocks(block1).length).toBe(0);
+    expect(getOverlappingBlocks(block2).length).toBe(0);
   });
 
   test("overlapping", () => {
@@ -89,7 +89,7 @@ describe("get overlapping elements", () => {
     const block2 = createBlock({ width: "100px", height: "100px" });
     mount(document.body, block1, { x: "0px", y: "0px" });
     mount(document.body, block2, { x: "50px", y: "50px" });
-    expect(getOverlappingElements(block1).length).toBe(1);
-    expect(getOverlappingElements(block2).length).toBe(1);
+    expect(getOverlappingBlocks(block1).length).toBe(1);
+    expect(getOverlappingBlocks(block2).length).toBe(1);
   });
 });
