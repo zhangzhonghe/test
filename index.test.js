@@ -1,4 +1,15 @@
-import { createBlock, mount, updatePosition } from "./index";
+import {
+  createBlock,
+  mount,
+  updatePosition,
+  getOverlappingElements,
+  initList,
+} from "./index";
+import { nextTick } from "./utils";
+
+beforeEach(() => {
+  initList();
+});
 
 describe("create a new block", () => {
   test("black border", () => {
@@ -61,5 +72,25 @@ describe("update block position", () => {
     const style = getComputedStyle(block);
     expect(style.left).toBe("0px");
     expect(style.top).toBe("100px");
+  });
+});
+
+describe("get overlapping elements", () => {
+  test("no overlapping", () => {
+    const block1 = createBlock({ width: "100px", height: "100px" });
+    const block2 = createBlock({ width: "100px", height: "100px" });
+    mount(document.body, block1, { x: "0px", y: "0px" });
+    mount(document.body, block2, { x: "200px", y: "200px" });
+    expect(getOverlappingElements(block1).length).toBe(0);
+    expect(getOverlappingElements(block2).length).toBe(0);
+  });
+
+  test("overlapping", () => {
+    const block1 = createBlock({ width: "100px", height: "100px" });
+    const block2 = createBlock({ width: "100px", height: "100px" });
+    mount(document.body, block1, { x: "0px", y: "0px" });
+    mount(document.body, block2, { x: "50px", y: "50px" });
+    expect(getOverlappingElements(block1).length).toBe(1);
+    expect(getOverlappingElements(block2).length).toBe(1);
   });
 });
