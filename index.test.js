@@ -1,4 +1,4 @@
-import { createBlock, mount } from "./index";
+import { createBlock, mount, updatePosition } from "./index";
 
 describe("create a new block", () => {
   test("black border", () => {
@@ -43,5 +43,23 @@ describe("mount a block to container", () => {
     const style = getComputedStyle(block);
     expect(style.left).toBe("100px");
     expect(style.top).toBe("0px");
+  });
+});
+
+describe("update block position", () => {
+  test("update x", () => {
+    const block = createBlock();
+    updatePosition(block, { x: "100px" });
+    const style = getComputedStyle(block);
+    expect(style.left).toBe("100px");
+    expect(style.top).toBe("0px");
+  });
+
+  test("update y", () => {
+    const block = createBlock();
+    updatePosition(block, { y: "100px" });
+    const style = getComputedStyle(block);
+    expect(style.left).toBe("0px");
+    expect(style.top).toBe("100px");
   });
 });
