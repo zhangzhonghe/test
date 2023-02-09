@@ -1,11 +1,10 @@
 import {
   createBlock,
   mount,
-  updatePosition,
+  moveBlock,
   getOverlappingElements,
   initList,
 } from "./index";
-import { nextTick } from "./utils";
 
 beforeEach(() => {
   initList();
@@ -60,7 +59,7 @@ describe("mount a block to container", () => {
 describe("update block position", () => {
   test("update x", () => {
     const block = createBlock();
-    updatePosition(block, { x: "100px" });
+    moveBlock(block, { x: "100px" });
     const style = getComputedStyle(block);
     expect(style.left).toBe("100px");
     expect(style.top).toBe("0px");
@@ -68,7 +67,7 @@ describe("update block position", () => {
 
   test("update y", () => {
     const block = createBlock();
-    updatePosition(block, { y: "100px" });
+    moveBlock(block, { y: "100px" });
     const style = getComputedStyle(block);
     expect(style.left).toBe("0px");
     expect(style.top).toBe("100px");

@@ -34,7 +34,7 @@ export function mount(container, element, position) {
 /**
  * 更新 block 的位置
  */
-export function updatePosition(element, position) {
+export function moveBlock(element, position) {
   position = Object.assign({ x: "0px", y: "0px" }, position);
   element.style.left = position.x;
   element.style.top = position.y;

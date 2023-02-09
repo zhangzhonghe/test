@@ -3,11 +3,3 @@ export function foreachObject(obj, callback) {
     callback(key, obj[key]);
   });
 }
-
-export function nextTick() {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve();
-    });
-  });
-}
