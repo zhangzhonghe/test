@@ -3,8 +3,8 @@ import { createBlock } from "./index";
 describe("create a new block", () => {
   test("black border", () => {
     const blackBorderBlock = createBlock({
-      width: 100,
-      height: 100,
+      width: "100px",
+      height: "100px",
       border: "black solid 3px",
     });
     const style = getComputedStyle(blackBorderBlock);
@@ -15,8 +15,8 @@ describe("create a new block", () => {
 
   test("orange background", () => {
     const origenBackgroundBlock = createBlock({
-      width: 100,
-      height: 100,
+      width: "100px",
+      height: "100px",
       backgroundColor: "orange",
     });
     const style = getComputedStyle(origenBackgroundBlock);
