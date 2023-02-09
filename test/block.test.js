@@ -4,7 +4,7 @@ import {
   moveBlock,
   getOverlappingElements,
   initList,
-} from "../block";
+} from "../src/block";
 
 beforeEach(() => {
   initList();
