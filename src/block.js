@@ -28,6 +28,10 @@ export function getBlockType(block) {
   return block._blockType;
 }
 
+export function isBlock(block) {
+  return !!block._blockType;
+}
+
 /**
  * 将元素挂载到容器中
  */

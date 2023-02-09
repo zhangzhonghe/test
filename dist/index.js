@@ -1,4 +1,4 @@
-(function (exports) {
+(function () {
   'use strict';
 
   function foreachObject(obj, callback) {
@@ -7,75 +7,113 @@
     });
   }
 
-  const blockList = [];
-
-  function initList() {
-    blockList.length = 0;
-  }
-
   /**
    * 创建一个 block 元素
    * @param {style} options 元素的样式
    * @returns div 元素
    */
-  function createBlock(options = {}) {
+  function createBlock$1(options = {}) {
     const result = document.createElement("div");
     foreachObject(options, (key, value) => {
+      if (key === "type") {
+        result._blockType = value;
+        return;
+      }
       result.style[key] = value;
     });
     return result;
   }
 
+  function getBlockType(block) {
+    return block._blockType;
+  }
+
+  function isBlock(block) {
+    return !!block._blockType;
+  }
+
   /**
    * 将元素挂载到容器中
    */
-  function mount(container, element, position) {
+  function mount(container, block, position) {
     position = Object.assign({ x: "0px", y: "0px" }, position);
-    container.appendChild(element);
-    element.style.position = "absolute";
-    element.style.left = position.x;
-    element.style.top = position.y;
-    blockList.push(element);
+    container.appendChild(block);
+    block.style.position = "absolute";
+    block.style.left = position.x;
+    block.style.top = position.y;
   }
 
   /**
    * 更新 block 的位置
    */
-  function moveBlock(element, position) {
+  function moveBlock(block, position) {
     position = Object.assign({ x: "0px", y: "0px" }, position);
-    element.style.left = position.x;
-    element.style.top = position.y;
+    block.style.left = position.x;
+    block.style.top = position.y;
   }
 
-  /**
-   * 获取与当前元素重叠的元素
-   */
-  function getOverlappingElements(element) {
-    const result = [];
-    const elementRect = element.getBoundingClientRect();
-    blockList.forEach((item) => {
-      if (item === element) {
-        return;
-      }
-      const itemRect = item.getBoundingClientRect();
-      if (
-        elementRect.left < itemRect.right &&
-        elementRect.right > itemRect.left &&
-        elementRect.top < itemRect.bottom &&
-        elementRect.bottom > itemRect.top
-      ) {
-        result.push(item);
-      }
+  const position = {
+    slot: { x: "10px", y: "10px" },
+    block: { x: "125px", y: "10px" },
+  };
+  let activeBlock = null;
+
+  const slot = createSlot();
+  const block = createBlock();
+
+  mount(document.body, slot);
+  mount(document.body, block);
+  moveBlock(slot, position.slot);
+  moveBlock(block, position.block);
+
+  function createSlot() {
+    const slot = createBlock$1({
+      type: "slot",
+      width: "100px",
+      height: "100px",
+      border: "4px solid black",
     });
-    return result;
+    slot.addEventListener("mousedown", onMouseKeyDown);
+    slot.addEventListener("mouseup", onMouseKeyUp);
+    return slot;
   }
 
-  exports.createBlock = createBlock;
-  exports.getOverlappingElements = getOverlappingElements;
-  exports.initList = initList;
-  exports.mount = mount;
-  exports.moveBlock = moveBlock;
+  function createBlock() {
+    const block = createBlock$1({
+      type: "block",
+      width: "100px",
+      height: "100px",
+      backgroundColor: "orange",
+    });
+    block.addEventListener("mousedown", onMouseKeyDown);
+    block.addEventListener("mouseup", onMouseKeyUp);
+    return block;
+  }
 
-  return exports;
+  function onMouseKeyDown(e) {
+    if (isBlock(e.target)) {
+      const type = getBlockType(e.target);
+      const map = {
+        slot: createSlot,
+        block: createBlock,
+      };
+      const newBlock = map[type]();
+      mount(document.body, newBlock);
+      moveBlock(newBlock, position[type]);
+      activeBlock = e.target;
+      activeBlock.style.zIndex = 100;
+    }
+  }
 
-})({});
+  function onMouseKeyUp() {
+    activeBlock.style.zIndex = 0;
+    activeBlock = null;
+  }
+
+  document.addEventListener("mousemove", (e) => {
+    if (activeBlock) {
+      moveBlock(activeBlock, { x: e.clientX + "px", y: e.clientY + "px" });
+    }
+  });
+
+})();
