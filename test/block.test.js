@@ -4,6 +4,7 @@ import {
   moveBlock,
   getOverlappingBlocks,
   initList,
+  updateBlockStyle,
 } from "../src/block";
 
 beforeEach(() => {
@@ -93,3 +94,33 @@ describe("get overlapping elements", () => {
     expect(getOverlappingBlocks(block2).length).toBe(1);
   });
 });
+
+describe("update block style when overlapping", () => {
+  test("update border color when overlapping", () => {
+    const slot = createBlock({
+      type: "slot",
+      width: "100px",
+      height: "100px",
+      border: "black solid 3px",
+    });
+    const block = createBlock({
+      type: "slot",
+      width: "100px",
+      height: "100px",
+      backgroundColor: "orange",
+    });
+    mount(document.body, slot, { x: "0px", y: "0px" });
+    mount(document.body, block, { x: "200px", y: "200px" });
+    expect(getComputedStyle(slot).borderColor).toBe("black");
+
+    moveBlock(block, { x: "50px", y: "50px" });
+    updateBlockStyle(block, {}, { borderColor: "red" });
+    expect(getComputedStyle(slot).borderColor).toBe("red");
+
+    // reset border color to black when not overlapping
+    moveBlock(block, { x: "200px", y: "200px" });
+    updateBlockStyle(block, {}, { borderColor: "red" });
+  });
+});
+
+describe.skip("inset to other block", () => {});

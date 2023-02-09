@@ -14,9 +14,17 @@ export function initList() {
 export function createBlock(options = {}) {
   const result = document.createElement("div");
   foreachObject(options, (key, value) => {
+    if (key === "type") {
+      result._blockType = value;
+      return;
+    }
     result.style[key] = value;
   });
   return result;
+}
+
+export function getBlockType(block) {
+  return block._blockType;
 }
 
 /**
@@ -61,4 +69,46 @@ export function getOverlappingBlocks(block) {
     }
   });
   return result;
+}
+
+/**
+ *  当块之间重叠或者分离时，更新块的样式
+ * @param {Element} movingBlock 移动中的块
+ * @param {CSSStyleDeclaration} movingBlockStyle 当重叠时，移动的块的样式
+ * @param {CSSStyleDeclaration} staticBlockStyle 当重叠时，静止的块的样式
+ */
+export function updateBlockStyle(
+  movingBlock,
+  movingBlockStyle,
+  staticBlockStyle
+) {
+  const overlappingBlocks = getOverlappingBlocks(movingBlock);
+  // 有重叠
+  if (overlappingBlocks.length > 0) {
+    foreachObject(movingBlockStyle, (key, value) => {
+      movingBlock[`__originalStyle_${key}`] = movingBlock.style[key];
+      movingBlock.style[key] = value;
+    });
+    overlappingBlocks.forEach((item) => {
+      foreachObject(staticBlockStyle, (key, value) => {
+        item[`__originalStyle_${key}`] = item.style[key];
+        item.style[key] = value;
+      });
+    });
+    // 用于块之间分离时，恢复原来的样式
+    movingBlock._overlappingBlocks = overlappingBlocks;
+
+    // 没有重叠
+  } else {
+    foreachObject(movingBlockStyle, (key) => {
+      if (movingBlock[`__originalStyle_${key}`])
+        movingBlock.style[key] = movingBlock[`__originalStyle_${key}`];
+    });
+    movingBlock._overlappingBlocks.forEach((item) => {
+      foreachObject(staticBlockStyle, (key) => {
+        if (item[`__originalStyle_${key}`])
+          item.style[key] = item[`__originalStyle_${key}`];
+      });
+    });
+  }
 }
