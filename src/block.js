@@ -112,3 +112,33 @@ export function updateBlockStyleWhenOverlapping(
     });
   }
 }
+
+/**
+ * 将 block 插入到 targetBlock 中
+ */
+export function insetWhenOverlapping(block, targetBlock) {
+  if (getBlockType(block) === getBlockType(targetBlock)) {
+    console.error("不能插入到相同类型的块里面");
+    return;
+  }
+  if (getBlockType(targetBlock) === "slot") {
+    block.style.left =
+      parseFloat(targetBlock.style.left) +
+      parseFloat(targetBlock.style.borderWidth) +
+      "px";
+    block.style.top =
+      parseFloat(targetBlock.style.top) +
+      parseFloat(targetBlock.style.borderWidth) +
+      "px";
+  }
+  if (getBlockType(targetBlock) === "block") {
+    block.style.left =
+      parseFloat(targetBlock.style.left) -
+      parseFloat(block.style.borderWidth) +
+      "px";
+    block.style.top =
+      parseFloat(targetBlock.style.top) -
+      parseFloat(block.style.borderWidth) +
+      "px";
+  }
+}

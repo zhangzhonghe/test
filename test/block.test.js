@@ -5,6 +5,7 @@ import {
   getOverlappingBlocks,
   initList,
   updateBlockStyleWhenOverlapping,
+  insetWhenOverlapping,
 } from "../src/block";
 
 beforeEach(() => {
@@ -104,7 +105,7 @@ describe("update block style when overlapping", () => {
       border: "black solid 3px",
     });
     const block = createBlock({
-      type: "slot",
+      type: "block",
       width: "100px",
       height: "100px",
       backgroundColor: "orange",
@@ -123,4 +124,50 @@ describe("update block style when overlapping", () => {
   });
 });
 
-describe.skip("inset to other block", () => {});
+describe("inset to other block", () => {
+  test("move block to slot", () => {
+    const slot = createBlock({
+      type: "slot",
+      width: "100px",
+      height: "100px",
+      border: "black solid 3px",
+    });
+    const block = createBlock({
+      type: "block",
+      width: "100px",
+      height: "100px",
+      backgroundColor: "orange",
+    });
+    mount(document.body, slot, { x: "0px", y: "0px" });
+    mount(document.body, block, { x: "200px", y: "200px" });
+
+    moveBlock(block, { x: "50px", y: "50px" });
+    insetWhenOverlapping(block, slot);
+    const blockRect = block.getBoundingClientRect();
+    expect(blockRect.left).toBe(3);
+    expect(blockRect.top).toBe(3);
+  });
+
+  test("move slot to block", () => {
+    const slot = createBlock({
+      type: "slot",
+      width: "100px",
+      height: "100px",
+      border: "black solid 3px",
+    });
+    const block = createBlock({
+      type: "block",
+      width: "100px",
+      height: "100px",
+      backgroundColor: "orange",
+    });
+    mount(document.body, slot, { x: "0px", y: "0px" });
+    mount(document.body, block, { x: "200px", y: "200px" });
+
+    moveBlock(slot, { x: "150px", y: "150px" });
+    insetWhenOverlapping(slot, block);
+    const slotRect = slot.getBoundingClientRect();
+    expect(slotRect.left).toBe(197);
+    expect(slotRect.top).toBe(197);
+  });
+});
