@@ -1,6 +1,7 @@
 import { foreachObject } from "./utils";
 
 const blockList = [];
+const prefix = "__originalStyle_";
 
 export function initList() {
   blockList.length = 0;
@@ -86,12 +87,12 @@ export function updateBlockStyle(
   // 有重叠
   if (overlappingBlocks.length > 0) {
     foreachObject(movingBlockStyle, (key, value) => {
-      movingBlock[`__originalStyle_${key}`] = movingBlock.style[key];
+      movingBlock[`${prefix}${key}`] = movingBlock.style[key];
       movingBlock.style[key] = value;
     });
     overlappingBlocks.forEach((item) => {
       foreachObject(staticBlockStyle, (key, value) => {
-        item[`__originalStyle_${key}`] = item.style[key];
+        item[`${prefix}${key}`] = item.style[key];
         item.style[key] = value;
       });
     });
@@ -101,13 +102,12 @@ export function updateBlockStyle(
     // 没有重叠
   } else {
     foreachObject(movingBlockStyle, (key) => {
-      if (movingBlock[`__originalStyle_${key}`])
-        movingBlock.style[key] = movingBlock[`__originalStyle_${key}`];
+      if (movingBlock[`${prefix}${key}`])
+        movingBlock.style[key] = movingBlock[`${prefix}${key}`];
     });
     movingBlock._overlappingBlocks.forEach((item) => {
       foreachObject(staticBlockStyle, (key) => {
-        if (item[`__originalStyle_${key}`])
-          item.style[key] = item[`__originalStyle_${key}`];
+        if (item[`${prefix}${key}`]) item.style[key] = item[`${prefix}${key}`];
       });
     });
   }
