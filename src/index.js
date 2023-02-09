@@ -4,6 +4,8 @@ import {
   mount,
   isBlock,
   getBlockType,
+  updateBlockStyleWhenOverlapping,
+  getOverlappingBlocks,
 } from "./block";
 
 const position = {
@@ -47,27 +49,31 @@ function createBlock() {
 }
 
 function onMouseKeyDown(e) {
-  offsetX = e.offsetX;
-  offsetY = e.offsetY;
   if (isBlock(e.target)) {
-    const type = getBlockType(e.target);
-    const map = {
-      slot: createSlot,
-      block: createBlock,
-    };
-    const newBlock = map[type]();
-    mount(document.body, newBlock);
-    moveBlock(newBlock, position[type]);
+    offsetX = e.offsetX;
+    offsetY = e.offsetY;
     activeBlock = e.target;
     activeBlock.style.zIndex = 100;
   }
 }
 
-function onMouseKeyUp() {
-  activeBlock.style.zIndex = 0;
-  activeBlock = null;
-  offsetX = 0;
-  offsetY = 0;
+function onMouseKeyUp(e) {
+  if (isBlock(e.target)) {
+    if (!isInToolbarArea(e.target)) {
+      const type = getBlockType(e.target);
+      const map = {
+        slot: createSlot,
+        block: createBlock,
+      };
+      const newBlock = map[type]();
+      mount(document.body, newBlock);
+      moveBlock(newBlock, position[type]);
+    }
+    activeBlock.style.zIndex = 0;
+    activeBlock = null;
+    offsetX = 0;
+    offsetY = 0;
+  }
 }
 
 document.addEventListener("mousemove", (e) => {
@@ -76,5 +82,23 @@ document.addEventListener("mousemove", (e) => {
       x: e.clientX - offsetX + "px",
       y: e.clientY - offsetY + "px",
     });
+    if (!isInToolbarArea(activeBlock)) {
+      const overlappingBlocks = getOverlappingBlocks(activeBlock);
+      if (overlappingBlocks.length) {
+        updateBlockStyleWhenOverlapping(
+          activeBlock,
+          getBlockType(activeBlock) === "slot" ? { borderColor: "red" } : {},
+          { borderColor: "red" }
+        );
+      }
+    }
   }
 });
+
+/**
+ * 是否在工具栏区域，顶部区域为工具栏区域
+ */
+function isInToolbarArea(block) {
+  const top = parseFloat(block.style.top);
+  return top <= 120;
+}
