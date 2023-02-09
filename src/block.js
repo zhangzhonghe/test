@@ -78,7 +78,7 @@ export function getOverlappingBlocks(block) {
  * @param {CSSStyleDeclaration} movingBlockStyle 当重叠时，移动的块的样式
  * @param {CSSStyleDeclaration} staticBlockStyle 当重叠时，静止的块的样式
  */
-export function updateBlockStyle(
+export function updateBlockStyleWhenOverlapping(
   movingBlock,
   movingBlockStyle,
   staticBlockStyle

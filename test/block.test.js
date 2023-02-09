@@ -4,7 +4,7 @@ import {
   moveBlock,
   getOverlappingBlocks,
   initList,
-  updateBlockStyle,
+  updateBlockStyleWhenOverlapping,
 } from "../src/block";
 
 beforeEach(() => {
@@ -114,12 +114,12 @@ describe("update block style when overlapping", () => {
     expect(getComputedStyle(slot).borderColor).toBe("black");
 
     moveBlock(block, { x: "50px", y: "50px" });
-    updateBlockStyle(block, {}, { borderColor: "red" });
+    updateBlockStyleWhenOverlapping(block, {}, { borderColor: "red" });
     expect(getComputedStyle(slot).borderColor).toBe("red");
 
     // reset border color to black when not overlapping
     moveBlock(block, { x: "200px", y: "200px" });
-    updateBlockStyle(block, {}, { borderColor: "red" });
+    updateBlockStyleWhenOverlapping(block, {}, { borderColor: "red" });
   });
 });
 
