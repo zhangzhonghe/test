@@ -57,6 +57,8 @@
     block: { x: "125px", y: "10px" },
   };
   let activeBlock = null;
+  let offsetX = 0;
+  let offsetY = 0;
 
   const slot = createSlot();
   const block = createBlock();
@@ -91,6 +93,8 @@
   }
 
   function onMouseKeyDown(e) {
+    offsetX = e.offsetX;
+    offsetY = e.offsetY;
     if (isBlock(e.target)) {
       const type = getBlockType(e.target);
       const map = {
@@ -108,11 +112,16 @@
   function onMouseKeyUp() {
     activeBlock.style.zIndex = 0;
     activeBlock = null;
+    offsetX = 0;
+    offsetY = 0;
   }
 
   document.addEventListener("mousemove", (e) => {
     if (activeBlock) {
-      moveBlock(activeBlock, { x: e.clientX + "px", y: e.clientY + "px" });
+      moveBlock(activeBlock, {
+        x: e.clientX - offsetX + "px",
+        y: e.clientY - offsetY + "px",
+      });
     }
   });
 
