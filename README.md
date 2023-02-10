@@ -11,7 +11,7 @@ npm install
 npm run build
 ```
 
-然后在项目根目录找到 `index.html` 文件，用浏览器打开即可。
+然后在项目根目录找到 `public` 文件夹，用浏览器打开 `index.html` 即可，或者[在线浏览](https://zhangzhonghe.github.io/test/public/)。
 
 ## 使用效果
 
