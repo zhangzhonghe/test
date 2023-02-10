@@ -234,6 +234,7 @@
       width: "100px",
       height: "100px",
       border: "4px solid black",
+      cursor: "grab",
     });
     slot.addEventListener("mousedown", onMouseKeyDown);
     slot.addEventListener("mouseup", onMouseKeyUp);
@@ -247,6 +248,7 @@
       height: "100px",
       zIndex: 1,
       backgroundColor: "orange",
+      cursor: "grab",
     });
     block.addEventListener("mousedown", onMouseKeyDown);
     block.addEventListener("mouseup", onMouseKeyUp);
@@ -257,6 +259,7 @@
     if (!isBlock(e.target)) {
       return;
     }
+    e.target.style.cursor = "grabbing";
     const nearestBlock = getNearestOverlappingBlock(e.target);
     activeBlock = e.target;
     activeBlock.style.transition = ``;
@@ -275,6 +278,7 @@
   }
 
   function onMouseKeyUp(e) {
+    if (isBlock(e.target)) e.target.style.cursor = "grab";
     if (!isBlock(e.target) || !activeBlock) {
       return;
     }
