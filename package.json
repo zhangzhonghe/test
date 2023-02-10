@@ -4,6 +4,9 @@
   "description": "To make it easy for you to get started with GitLab, here's a list of recommended next steps.",
   "main": "index.js",
   "type": "module",
+  "engines": {
+    "node": ">=18.10.0"
+  },
   "scripts": {
     "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
     "build": "rollup src/main.js --file dist/index.js --format iife"
