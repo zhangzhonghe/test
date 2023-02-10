@@ -5,7 +5,6 @@ import {
   isBlock,
   getBlockType,
   updateBlockStyleWhenOverlapping,
-  getOverlappingBlocks,
 } from "./block";
 
 const position = {
@@ -41,6 +40,7 @@ function createBlock() {
     type: "block",
     width: "100px",
     height: "100px",
+    zIndex: 1,
     backgroundColor: "orange",
   });
   block.addEventListener("mousedown", onMouseKeyDown);
@@ -53,6 +53,7 @@ function onMouseKeyDown(e) {
     offsetX = e.offsetX;
     offsetY = e.offsetY;
     activeBlock = e.target;
+    activeBlock._zIndex = activeBlock.style.zIndex;
     activeBlock.style.zIndex = 100;
     e.target._clickInToolbarArea = isInToolbarArea(e.target);
   }
@@ -70,7 +71,7 @@ function onMouseKeyUp(e) {
       mount(document.body, newBlock);
       moveBlock(newBlock, position[type]);
     }
-    activeBlock.style.zIndex = 0;
+    activeBlock.style.zIndex = activeBlock._zIndex;
     activeBlock = null;
     offsetX = 0;
     offsetY = 0;
