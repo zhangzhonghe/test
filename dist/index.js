@@ -171,6 +171,10 @@
     slot: { x: "14px", y: "14px" },
     block: { x: "130px", y: "18px" },
   };
+  const zIndex = {
+    slot: 0,
+    block: 1,
+  };
   // 过度动画时长
   const duration = 200;
   let activeBlock = null;
@@ -217,14 +221,13 @@
       activeBlock.style.transition = ``;
       offsetX = e.offsetX;
       offsetY = e.offsetY;
-      activeBlock._zIndex = activeBlock.style.zIndex;
       activeBlock.style.zIndex = 100;
       e.target._clickInToolbarArea = isInToolbarArea(e.target);
     }
   }
 
   function onMouseKeyUp(e) {
-    if (isBlock(e.target)) {
+    if (isBlock(e.target) && activeBlock) {
       activeBlock.style.transition = `all ${duration}ms`;
       if (e.target._clickInToolbarArea && !isInToolbarArea(e.target)) {
         const type = getBlockType(e.target);
@@ -239,7 +242,7 @@
         activeBlock.style.left = position[getBlockType(activeBlock)].x;
         activeBlock.style.top = position[getBlockType(activeBlock)].y;
       }
-      activeBlock.style.zIndex = activeBlock._zIndex;
+      activeBlock.style.zIndex = zIndex[getBlockType(activeBlock)];
       activeBlock = null;
       offsetX = 0;
       offsetY = 0;
@@ -250,7 +253,13 @@
     if (activeBlock) {
       moveBlock(activeBlock, {
         x: e.clientX - offsetX + "px",
-        y: e.clientY - offsetY + "px",
+        y:
+          Math.max(
+            e.clientY - offsetY,
+            activeBlock._clickInToolbarArea
+              ? 0
+              : toolbarStyle.height + toolbarStyle.margin * 2
+          ) + "px",
       });
       if (!isInToolbarArea(activeBlock)) {
         updateBlockStyleWhenOverlapping(
