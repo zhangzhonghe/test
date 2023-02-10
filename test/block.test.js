@@ -6,6 +6,7 @@ import {
   initList,
   updateBlockStyleWhenOverlapping,
   insetWhenOverlapping,
+  getNearestOverlappingBlock,
 } from "../src/block";
 
 beforeEach(() => {
@@ -120,6 +121,33 @@ describe("get overlapping elements", () => {
     moveBlock(slot2, { x: "50px", y: "50px" });
     expect(getOverlappingBlocks(slot1).length).toBe(0);
     expect(getOverlappingBlocks(slot2).length).toBe(0);
+  });
+
+  test("get nearest overlapping block", () => {
+    const slot1 = createBlock({
+      type: "slot",
+      width: "100px",
+      height: "100px",
+      border: "black solid 3px",
+    });
+    const slot2 = createBlock({
+      type: "slot",
+      width: "100px",
+      height: "100px",
+      border: "black solid 3px",
+    });
+    const block = createBlock({
+      type: "block",
+      width: "100px",
+      height: "100px",
+    });
+    mount(document.body, slot1, { x: "0px", y: "0px" });
+    mount(document.body, slot2, { x: "150px", y: "0px" });
+    mount(document.body, block, { x: "500px", y: "500px" });
+
+    moveBlock(block, { x: "90px", y: "0px" });
+    expect(getOverlappingBlocks(block).length).toBe(2);
+    expect(getNearestOverlappingBlock(block)).toBe(slot2);
   });
 });
 

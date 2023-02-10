@@ -77,6 +77,30 @@ export function getOverlappingBlocks(block) {
 }
 
 /**
+ * 获取与当前块重叠并距离最近的 block
+ */
+export function getNearestOverlappingBlock(block) {
+  const overlappingBlocks = getOverlappingBlocks(block);
+  if (overlappingBlocks.length === 0) {
+    return null;
+  }
+  const blockX = parseFloat(block.style.left);
+  const blockY = parseFloat(block.style.top);
+  const map = {};
+  const distanceList = overlappingBlocks.map((item, index) => {
+    const itemX = parseFloat(item.style.left);
+    const itemY = parseFloat(item.style.top);
+    const result = Math.sqrt(
+      Math.pow(itemX - blockX, 2) + Math.pow(itemY - blockY, 2)
+    );
+    map[result] = index;
+    return result;
+  });
+
+  return overlappingBlocks[map[Math.min(...distanceList)]];
+}
+
+/**
  *  当块之间重叠或者分离时，更新块的样式
  * @param {Element} movingBlock 移动中的块
  * @param {CSSStyleDeclaration} movingBlockStyle 当重叠时，移动的块的样式
