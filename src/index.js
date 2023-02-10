@@ -7,10 +7,17 @@ import {
   updateBlockStyleWhenOverlapping,
 } from "./block";
 
+const toolbarStyle = {
+  height: 120,
+  margin: 8,
+};
+const toolbar = document.querySelector(".tool-bar");
 const position = {
   slot: { x: "14px", y: "14px" },
   block: { x: "130px", y: "18px" },
 };
+// 过度动画时长
+const duration = 200;
 let activeBlock = null;
 let offsetX = 0;
 let offsetY = 0;
@@ -20,6 +27,9 @@ const block = createBlock();
 
 mount(document.body, slot, position.slot);
 mount(document.body, block, position.block);
+
+toolbar.style.height = toolbarStyle.height + "px";
+toolbar.style.margin = toolbarStyle.margin + "px";
 
 function createSlot() {
   const slot = _createBlock({
@@ -48,9 +58,10 @@ function createBlock() {
 
 function onMouseKeyDown(e) {
   if (isBlock(e.target)) {
+    activeBlock = e.target;
+    activeBlock.style.transition = ``;
     offsetX = e.offsetX;
     offsetY = e.offsetY;
-    activeBlock = e.target;
     activeBlock._zIndex = activeBlock.style.zIndex;
     activeBlock.style.zIndex = 100;
     e.target._clickInToolbarArea = isInToolbarArea(e.target);
@@ -59,6 +70,7 @@ function onMouseKeyDown(e) {
 
 function onMouseKeyUp(e) {
   if (isBlock(e.target)) {
+    activeBlock.style.transition = `all ${duration}ms`;
     if (e.target._clickInToolbarArea && !isInToolbarArea(e.target)) {
       const type = getBlockType(e.target);
       const map = {
@@ -68,6 +80,9 @@ function onMouseKeyUp(e) {
       const newBlock = map[type]();
       mount(document.body, newBlock);
       moveBlock(newBlock, position[type]);
+    } else if (e.target._clickInToolbarArea) {
+      activeBlock.style.left = position[getBlockType(activeBlock)].x;
+      activeBlock.style.top = position[getBlockType(activeBlock)].y;
     }
     activeBlock.style.zIndex = activeBlock._zIndex;
     activeBlock = null;
