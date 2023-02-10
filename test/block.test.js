@@ -78,21 +78,48 @@ describe("update block position", () => {
 
 describe("get overlapping elements", () => {
   test("no overlapping", () => {
-    const block1 = createBlock({ width: "100px", height: "100px" });
-    const block2 = createBlock({ width: "100px", height: "100px" });
-    mount(document.body, block1, { x: "0px", y: "0px" });
-    mount(document.body, block2, { x: "200px", y: "200px" });
-    expect(getOverlappingBlocks(block1).length).toBe(0);
-    expect(getOverlappingBlocks(block2).length).toBe(0);
+    const slot = createBlock({ type: "slot", width: "100px", height: "100px" });
+    const block = createBlock({
+      type: "block",
+      width: "100px",
+      height: "100px",
+    });
+    mount(document.body, slot, { x: "0px", y: "0px" });
+    mount(document.body, block, { x: "200px", y: "200px" });
+    expect(getOverlappingBlocks(slot).length).toBe(0);
+    expect(getOverlappingBlocks(block).length).toBe(0);
   });
 
   test("overlapping", () => {
-    const block1 = createBlock({ width: "100px", height: "100px" });
-    const block2 = createBlock({ width: "100px", height: "100px" });
-    mount(document.body, block1, { x: "0px", y: "0px" });
-    mount(document.body, block2, { x: "50px", y: "50px" });
-    expect(getOverlappingBlocks(block1).length).toBe(1);
-    expect(getOverlappingBlocks(block2).length).toBe(1);
+    const slot = createBlock({ type: "slot", width: "100px", height: "100px" });
+    const block = createBlock({
+      type: "block",
+      width: "100px",
+      height: "100px",
+    });
+    mount(document.body, slot, { x: "0px", y: "0px" });
+    mount(document.body, block, { x: "50px", y: "50px" });
+    expect(getOverlappingBlocks(slot).length).toBe(1);
+    expect(getOverlappingBlocks(block).length).toBe(1);
+  });
+
+  test("overlapping with same type block", () => {
+    const slot1 = createBlock({
+      type: "slot",
+      width: "100px",
+      height: "100px",
+    });
+    const slot2 = createBlock({
+      type: "slot",
+      width: "100px",
+      height: "100px",
+    });
+    mount(document.body, slot1, { x: "0px", y: "0px" });
+    mount(document.body, slot2, { x: "200px", y: "200px" });
+
+    moveBlock(slot2, { x: "50px", y: "50px" });
+    expect(getOverlappingBlocks(slot1).length).toBe(0);
+    expect(getOverlappingBlocks(slot2).length).toBe(0);
   });
 });
 
@@ -150,6 +177,31 @@ describe("update block style when overlapping", () => {
     expect(() =>
       updateBlockStyleWhenOverlapping(block, {}, { borderColor: "red" })
     ).not.toThrowError();
+  });
+
+  test("should not change style when tow slots are overlapping", () => {
+    const slot1 = createBlock({
+      type: "slot",
+      width: "100px",
+      height: "100px",
+      border: "black solid 3px",
+    });
+    const slot2 = createBlock({
+      type: "slot",
+      width: "100px",
+      height: "100px",
+      border: "black solid 3px",
+    });
+    mount(document.body, slot1, { x: "0px", y: "0px" });
+    mount(document.body, slot2, { x: "200px", y: "200px" });
+    moveBlock(slot2, { x: "50px", y: "50px" });
+    updateBlockStyleWhenOverlapping(
+      slot2,
+      { borderColor: "red" },
+      { borderColor: "red" }
+    );
+    expect(getComputedStyle(slot1).borderColor).toBe("black");
+    expect(getComputedStyle(slot2).borderColor).toBe("black");
   });
 });
 

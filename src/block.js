@@ -60,7 +60,7 @@ export function getOverlappingBlocks(block) {
   const result = [];
   const elementRect = block.getBoundingClientRect();
   blockList.forEach((item) => {
-    if (item === block) {
+    if (getBlockType(item) === getBlockType(block)) {
       return;
     }
     const itemRect = item.getBoundingClientRect();
