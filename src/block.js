@@ -54,7 +54,7 @@ export function moveBlock(block, position) {
 }
 
 /**
- * 获取与当前元素重叠的块
+ * 获取与当前元素重叠的 block，不包括相同类型的 block
  */
 export function getOverlappingBlocks(block) {
   const result = [];
