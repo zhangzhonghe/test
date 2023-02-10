@@ -54,12 +54,13 @@ function onMouseKeyDown(e) {
     offsetY = e.offsetY;
     activeBlock = e.target;
     activeBlock.style.zIndex = 100;
+    e.target._clickInToolbarArea = isInToolbarArea(e.target);
   }
 }
 
 function onMouseKeyUp(e) {
   if (isBlock(e.target)) {
-    if (!isInToolbarArea(e.target)) {
+    if (e.target._clickInToolbarArea && !isInToolbarArea(e.target)) {
       const type = getBlockType(e.target);
       const map = {
         slot: createSlot,
@@ -83,14 +84,11 @@ document.addEventListener("mousemove", (e) => {
       y: e.clientY - offsetY + "px",
     });
     if (!isInToolbarArea(activeBlock)) {
-      const overlappingBlocks = getOverlappingBlocks(activeBlock);
-      if (overlappingBlocks.length) {
-        updateBlockStyleWhenOverlapping(
-          activeBlock,
-          getBlockType(activeBlock) === "slot" ? { borderColor: "red" } : {},
-          { borderColor: "red" }
-        );
-      }
+      updateBlockStyleWhenOverlapping(
+        activeBlock,
+        getBlockType(activeBlock) === "slot" ? { borderColor: "red" } : {},
+        { borderColor: "red" }
+      );
     }
   }
 });

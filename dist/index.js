@@ -57,13 +57,13 @@
   }
 
   /**
-   * 获取与当前元素重叠的块
+   * 获取与当前元素重叠的 block，不包括相同类型的 block
    */
   function getOverlappingBlocks(block) {
     const result = [];
     const elementRect = block.getBoundingClientRect();
     blockList.forEach((item) => {
-      if (item === block) {
+      if (getBlockType(item) === getBlockType(block)) {
         return;
       }
       const itemRect = item.getBoundingClientRect();
@@ -80,7 +80,31 @@
   }
 
   /**
-   *  当块之间重叠或者分离时，更新块的样式
+   * 获取与当前块重叠并距离最近的 block
+   */
+  function getNearestOverlappingBlock(block) {
+    const overlappingBlocks = getOverlappingBlocks(block);
+    if (overlappingBlocks.length === 0) {
+      return null;
+    }
+    const blockX = parseFloat(block.style.left);
+    const blockY = parseFloat(block.style.top);
+    const map = {};
+    const distanceList = overlappingBlocks.map((item, index) => {
+      const itemX = parseFloat(item.style.left);
+      const itemY = parseFloat(item.style.top);
+      const result = Math.sqrt(
+        Math.pow(itemX - blockX, 2) + Math.pow(itemY - blockY, 2)
+      );
+      map[result] = index;
+      return result;
+    });
+
+    return overlappingBlocks[map[Math.min(...distanceList)]];
+  }
+
+  /**
+   * 当块之间重叠或者分离时，更新块的样式
    * @param {Element} movingBlock 移动中的块
    * @param {CSSStyleDeclaration} movingBlockStyle 当重叠时，移动的块的样式
    * @param {CSSStyleDeclaration} staticBlockStyle 当重叠时，静止的块的样式
@@ -90,32 +114,50 @@
     movingBlockStyle,
     staticBlockStyle
   ) {
-    const overlappingBlocks = getOverlappingBlocks(movingBlock);
+    const nearestOverlappingBlock = getNearestOverlappingBlock(movingBlock);
     // 有重叠
-    if (overlappingBlocks.length > 0) {
+    if (nearestOverlappingBlock) {
+      if (
+        movingBlock._nearestOverlappingBlock &&
+        movingBlock._nearestOverlappingBlock !== nearestOverlappingBlock
+      ) {
+        restStyle();
+      }
+
       foreachObject(movingBlockStyle, (key, value) => {
-        movingBlock[`${prefix}${key}`] = movingBlock.style[key];
-        movingBlock.style[key] = value;
+        if (!movingBlock[`${prefix}${key}`]) {
+          movingBlock[`${prefix}${key}`] = movingBlock.style[key];
+          movingBlock.style[key] = value;
+        }
       });
-      overlappingBlocks.forEach((item) => {
-        foreachObject(staticBlockStyle, (key, value) => {
-          item[`${prefix}${key}`] = item.style[key];
-          item.style[key] = value;
-        });
+      foreachObject(staticBlockStyle, (key, value) => {
+        if (!nearestOverlappingBlock[`${prefix}${key}`]) {
+          nearestOverlappingBlock[`${prefix}${key}`] =
+            nearestOverlappingBlock.style[key];
+          nearestOverlappingBlock.style[key] = value;
+        }
       });
       // 用于块之间分离时，恢复原来的样式
-      movingBlock._overlappingBlocks = overlappingBlocks;
+      movingBlock._nearestOverlappingBlock = nearestOverlappingBlock;
 
       // 没有重叠
-    } else {
+    } else if (movingBlock._nearestOverlappingBlock) {
+      restStyle();
+    }
+
+    function restStyle() {
       foreachObject(movingBlockStyle, (key) => {
-        if (movingBlock[`${prefix}${key}`])
+        if (movingBlock[`${prefix}${key}`]) {
           movingBlock.style[key] = movingBlock[`${prefix}${key}`];
+          movingBlock[`${prefix}${key}`] = null;
+        }
       });
-      movingBlock._overlappingBlocks.forEach((item) => {
-        foreachObject(staticBlockStyle, (key) => {
-          if (item[`${prefix}${key}`]) item.style[key] = item[`${prefix}${key}`];
-        });
+      foreachObject(staticBlockStyle, (key) => {
+        if (movingBlock._nearestOverlappingBlock[`${prefix}${key}`]) {
+          movingBlock._nearestOverlappingBlock.style[key] =
+            movingBlock._nearestOverlappingBlock[`${prefix}${key}`];
+          movingBlock._nearestOverlappingBlock[`${prefix}${key}`] = null;
+        }
       });
     }
   }
@@ -166,12 +208,13 @@
       offsetY = e.offsetY;
       activeBlock = e.target;
       activeBlock.style.zIndex = 100;
+      e.target._clickInToolbarArea = isInToolbarArea(e.target);
     }
   }
 
   function onMouseKeyUp(e) {
     if (isBlock(e.target)) {
-      if (!isInToolbarArea(e.target)) {
+      if (e.target._clickInToolbarArea && !isInToolbarArea(e.target)) {
         const type = getBlockType(e.target);
         const map = {
           slot: createSlot,
@@ -195,14 +238,11 @@
         y: e.clientY - offsetY + "px",
       });
       if (!isInToolbarArea(activeBlock)) {
-        const overlappingBlocks = getOverlappingBlocks(activeBlock);
-        if (overlappingBlocks.length) {
-          updateBlockStyleWhenOverlapping(
-            activeBlock,
-            getBlockType(activeBlock) === "slot" ? { borderColor: "red" } : {},
-            { borderColor: "red" }
-          );
-        }
+        updateBlockStyleWhenOverlapping(
+          activeBlock,
+          getBlockType(activeBlock) === "slot" ? { borderColor: "red" } : {},
+          { borderColor: "red" }
+        );
       }
     }
   });
