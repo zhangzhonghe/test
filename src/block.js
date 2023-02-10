@@ -112,8 +112,8 @@ export function updateBlockStyleWhenOverlapping(
   staticBlockStyle,
   shouldChange = () => true
 ) {
-  if (!shouldChange()) return;
   const nearestOverlappingBlock = getNearestOverlappingBlock(movingBlock);
+  if (!shouldChange(movingBlock, nearestOverlappingBlock)) return;
   // 有重叠
   if (nearestOverlappingBlock) {
     if (

@@ -112,9 +112,11 @@
   function updateBlockStyleWhenOverlapping(
     movingBlock,
     movingBlockStyle,
-    staticBlockStyle
+    staticBlockStyle,
+    shouldChange = () => true
   ) {
     const nearestOverlappingBlock = getNearestOverlappingBlock(movingBlock);
+    if (!shouldChange(movingBlock, nearestOverlappingBlock)) return;
     // 有重叠
     if (nearestOverlappingBlock) {
       if (
@@ -248,8 +250,15 @@
 
   function onMouseKeyDown(e) {
     if (isBlock(e.target)) {
+      const nearestBlock = getNearestOverlappingBlock(e.target);
       activeBlock = e.target;
       activeBlock.style.transition = ``;
+      activeBlock._inserted = false;
+      if (
+        nearestBlock &&
+        getNearestOverlappingBlock(nearestBlock) === activeBlock
+      )
+        nearestBlock._inserted = false;
       offsetX = e.offsetX;
       offsetY = e.offsetY;
       activeBlock.style.zIndex = 100;
@@ -259,7 +268,6 @@
 
   function onMouseKeyUp(e) {
     if (isBlock(e.target) && activeBlock) {
-      activeBlock.style.transition = `all ${duration}ms`;
       if (e.target._clickInToolbarArea && !isInToolbarArea(e.target)) {
         const type = getBlockType(e.target);
         const map = {
@@ -272,9 +280,15 @@
       } else if (e.target._clickInToolbarArea) {
         activeBlock.style.left = position[getBlockType(activeBlock)].x;
         activeBlock.style.top = position[getBlockType(activeBlock)].y;
-      } else if (getNearestOverlappingBlock(activeBlock)) {
+      }
+      if (getNearestOverlappingBlock(activeBlock)) {
         const nearestBlock = getNearestOverlappingBlock(activeBlock);
-        insetWhenOverlapping(activeBlock, nearestBlock);
+        if (!nearestBlock._inserted) {
+          activeBlock.style.transition = `all ${duration}ms`;
+          insetWhenOverlapping(activeBlock, nearestBlock);
+          nearestBlock._inserted = true;
+          activeBlock._inserted = true;
+        }
       }
       activeBlock.style.zIndex = zIndex[getBlockType(activeBlock)];
       activeBlock = null;
@@ -299,7 +313,8 @@
         updateBlockStyleWhenOverlapping(
           activeBlock,
           getBlockType(activeBlock) === "slot" ? { borderColor: "red" } : {},
-          { borderColor: "red" }
+          { borderColor: "red" },
+          (block, targetBlock) => !block._inserted && !targetBlock?._inserted
         );
       }
     }
