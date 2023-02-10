@@ -109,8 +109,10 @@ export function getNearestOverlappingBlock(block) {
 export function updateBlockStyleWhenOverlapping(
   movingBlock,
   movingBlockStyle,
-  staticBlockStyle
+  staticBlockStyle,
+  shouldChange = () => true
 ) {
+  if (!shouldChange()) return;
   const nearestOverlappingBlock = getNearestOverlappingBlock(movingBlock);
   // 有重叠
   if (nearestOverlappingBlock) {

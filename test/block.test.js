@@ -1,3 +1,4 @@
+import { jest } from "@jest/globals";
 import {
   createBlock,
   mount,
@@ -304,6 +305,46 @@ describe("update block style when overlapping", () => {
     moveBlock(block1, { x: "201px", y: "0px" });
     updateBlockStyleWhenOverlapping(block1, {}, { borderColor: "red" });
     expect(getComputedStyle(slot).borderColor).toBe("red");
+  });
+
+  test("onChange", () => {
+    const slot = createBlock({
+      type: "slot",
+      width: "100px",
+      height: "100px",
+      border: "black solid 3px",
+    });
+    const block = createBlock({
+      type: "block",
+      width: "100px",
+      height: "100px",
+      backgroundColor: "orange",
+    });
+    let doChange = false;
+    const shouldChange = jest.fn(() => doChange);
+    mount(document.body, slot, { x: "0px", y: "0px" });
+    mount(document.body, block, { x: "200px", y: "200px" });
+    expect(getComputedStyle(slot).borderColor).toBe("black");
+
+    moveBlock(block, { x: "50px", y: "50px" });
+    updateBlockStyleWhenOverlapping(
+      block,
+      {},
+      { borderColor: "red" },
+      shouldChange
+    );
+    expect(getComputedStyle(slot).borderColor).toBe("black");
+    expect(shouldChange).toBeCalledTimes(1);
+
+    doChange = true;
+    updateBlockStyleWhenOverlapping(
+      block,
+      {},
+      { borderColor: "red" },
+      shouldChange
+    );
+    expect(getComputedStyle(slot).borderColor).toBe("red");
+    expect(shouldChange).toBeCalledTimes(2);
   });
 });
 
