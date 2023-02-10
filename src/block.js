@@ -91,27 +91,36 @@ export function updateBlockStyleWhenOverlapping(
   // 有重叠
   if (overlappingBlocks.length > 0) {
     foreachObject(movingBlockStyle, (key, value) => {
-      movingBlock[`${prefix}${key}`] = movingBlock.style[key];
-      movingBlock.style[key] = value;
+      if (!movingBlock[`${prefix}${key}`]) {
+        movingBlock[`${prefix}${key}`] = movingBlock.style[key];
+        movingBlock.style[key] = value;
+      }
     });
     overlappingBlocks.forEach((item) => {
       foreachObject(staticBlockStyle, (key, value) => {
-        item[`${prefix}${key}`] = item.style[key];
-        item.style[key] = value;
+        if (!item[`${prefix}${key}`]) {
+          item[`${prefix}${key}`] = item.style[key];
+          item.style[key] = value;
+        }
       });
     });
     // 用于块之间分离时，恢复原来的样式
     movingBlock._overlappingBlocks = overlappingBlocks;
 
     // 没有重叠
-  } else {
+  } else if (movingBlock._overlappingBlocks) {
     foreachObject(movingBlockStyle, (key) => {
-      if (movingBlock[`${prefix}${key}`])
+      if (movingBlock[`${prefix}${key}`]) {
         movingBlock.style[key] = movingBlock[`${prefix}${key}`];
+        movingBlock[`${prefix}${key}`] = null;
+      }
     });
     movingBlock._overlappingBlocks.forEach((item) => {
       foreachObject(staticBlockStyle, (key) => {
-        if (item[`${prefix}${key}`]) item.style[key] = item[`${prefix}${key}`];
+        if (item[`${prefix}${key}`]) {
+          item.style[key] = item[`${prefix}${key}`];
+          item[`${prefix}${key}`] = null;
+        }
       });
     });
   }

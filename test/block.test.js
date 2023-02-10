@@ -118,9 +118,38 @@ describe("update block style when overlapping", () => {
     updateBlockStyleWhenOverlapping(block, {}, { borderColor: "red" });
     expect(getComputedStyle(slot).borderColor).toBe("red");
 
+    // just move a little bit, still overlapping
+    moveBlock(block, { x: "60px", y: "60px" });
+    updateBlockStyleWhenOverlapping(block, {}, { borderColor: "red" });
+    expect(getComputedStyle(slot).borderColor).toBe("red");
+
     // reset border color to black when not overlapping
     moveBlock(block, { x: "200px", y: "200px" });
     updateBlockStyleWhenOverlapping(block, {}, { borderColor: "red" });
+    expect(getComputedStyle(slot).borderColor).toBe("black");
+  });
+
+  test("should not throw error when not overlapping", () => {
+    const slot = createBlock({
+      type: "slot",
+      width: "100px",
+      height: "100px",
+      border: "black solid 3px",
+    });
+    const block = createBlock({
+      type: "block",
+      width: "100px",
+      height: "100px",
+      backgroundColor: "orange",
+    });
+    mount(document.body, slot, { x: "0px", y: "0px" });
+    mount(document.body, block, { x: "200px", y: "200px" });
+    expect(getComputedStyle(slot).borderColor).toBe("black");
+    // move to not overlapping position
+    moveBlock(block, { x: "210px", y: "210px" });
+    expect(() =>
+      updateBlockStyleWhenOverlapping(block, {}, { borderColor: "red" })
+    ).not.toThrowError();
   });
 });
 
