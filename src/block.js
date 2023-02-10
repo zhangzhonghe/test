@@ -101,7 +101,7 @@ export function getNearestOverlappingBlock(block) {
 }
 
 /**
- *  当块之间重叠或者分离时，更新块的样式
+ * 当块之间重叠或者分离时，更新块的样式
  * @param {Element} movingBlock 移动中的块
  * @param {CSSStyleDeclaration} movingBlockStyle 当重叠时，移动的块的样式
  * @param {CSSStyleDeclaration} staticBlockStyle 当重叠时，静止的块的样式
@@ -111,41 +111,50 @@ export function updateBlockStyleWhenOverlapping(
   movingBlockStyle,
   staticBlockStyle
 ) {
-  const overlappingBlocks = getOverlappingBlocks(movingBlock);
+  const nearestOverlappingBlock = getNearestOverlappingBlock(movingBlock);
   // 有重叠
-  if (overlappingBlocks.length > 0) {
+  if (nearestOverlappingBlock) {
+    if (
+      movingBlock._nearestOverlappingBlock &&
+      movingBlock._nearestOverlappingBlock !== nearestOverlappingBlock
+    ) {
+      restStyle();
+    }
+
     foreachObject(movingBlockStyle, (key, value) => {
       if (!movingBlock[`${prefix}${key}`]) {
         movingBlock[`${prefix}${key}`] = movingBlock.style[key];
         movingBlock.style[key] = value;
       }
     });
-    overlappingBlocks.forEach((item) => {
-      foreachObject(staticBlockStyle, (key, value) => {
-        if (!item[`${prefix}${key}`]) {
-          item[`${prefix}${key}`] = item.style[key];
-          item.style[key] = value;
-        }
-      });
+    foreachObject(staticBlockStyle, (key, value) => {
+      if (!nearestOverlappingBlock[`${prefix}${key}`]) {
+        nearestOverlappingBlock[`${prefix}${key}`] =
+          nearestOverlappingBlock.style[key];
+        nearestOverlappingBlock.style[key] = value;
+      }
     });
     // 用于块之间分离时，恢复原来的样式
-    movingBlock._overlappingBlocks = overlappingBlocks;
+    movingBlock._nearestOverlappingBlock = nearestOverlappingBlock;
 
     // 没有重叠
-  } else if (movingBlock._overlappingBlocks) {
+  } else if (movingBlock._nearestOverlappingBlock) {
+    restStyle();
+  }
+
+  function restStyle() {
     foreachObject(movingBlockStyle, (key) => {
       if (movingBlock[`${prefix}${key}`]) {
         movingBlock.style[key] = movingBlock[`${prefix}${key}`];
         movingBlock[`${prefix}${key}`] = null;
       }
     });
-    movingBlock._overlappingBlocks.forEach((item) => {
-      foreachObject(staticBlockStyle, (key) => {
-        if (item[`${prefix}${key}`]) {
-          item.style[key] = item[`${prefix}${key}`];
-          item[`${prefix}${key}`] = null;
-        }
-      });
+    foreachObject(staticBlockStyle, (key) => {
+      if (movingBlock._nearestOverlappingBlock[`${prefix}${key}`]) {
+        movingBlock._nearestOverlappingBlock.style[key] =
+          movingBlock._nearestOverlappingBlock[`${prefix}${key}`];
+        movingBlock._nearestOverlappingBlock[`${prefix}${key}`] = null;
+      }
     });
   }
 }

@@ -231,6 +231,41 @@ describe("update block style when overlapping", () => {
     expect(getComputedStyle(slot1).borderColor).toBe("black");
     expect(getComputedStyle(slot2).borderColor).toBe("black");
   });
+
+  test("should reset more distant overlapping block style when overlapping closer block", () => {
+    const slot1 = createBlock({
+      type: "slot",
+      width: "100px",
+      height: "100px",
+      border: "black solid 3px",
+    });
+    const slot2 = createBlock({
+      type: "slot",
+      width: "100px",
+      height: "100px",
+      border: "black solid 3px",
+    });
+    const block = createBlock({
+      type: "block",
+      width: "100px",
+      height: "100px",
+    });
+    mount(document.body, slot1, { x: "0px", y: "20px" });
+    mount(document.body, slot2, { x: "150px", y: "0px" });
+    mount(document.body, block, { x: "500px", y: "500px" });
+
+    // overlapping slot1 and not overlapping slot2
+    moveBlock(block, { x: "90px", y: "110px" });
+    updateBlockStyleWhenOverlapping(block, {}, { borderColor: "red" });
+    expect(getComputedStyle(slot1).borderColor).toBe("red");
+    expect(getComputedStyle(slot2).borderColor).toBe("black");
+
+    // overlapping both and nearer to slot2
+    moveBlock(block, { x: "90px", y: "90px" });
+    updateBlockStyleWhenOverlapping(block, {}, { borderColor: "red" });
+    expect(getComputedStyle(slot1).borderColor).toBe("black");
+    expect(getComputedStyle(slot2).borderColor).toBe("red");
+  });
 });
 
 describe("inset to other block", () => {
