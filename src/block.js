@@ -169,7 +169,7 @@ export function updateBlockStyleWhenOverlapping(
 /**
  * 将 block 插入到 targetBlock 中
  */
-export function insetWhenOverlapping(block, targetBlock) {
+export function insetBlockToTarget(block, targetBlock) {
   if (getBlockType(block) === getBlockType(targetBlock)) {
     console.error("不能插入到相同类型的块里面");
     return;

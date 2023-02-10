@@ -172,7 +172,7 @@
   /**
    * 将 block 插入到 targetBlock 中
    */
-  function insetWhenOverlapping(block, targetBlock) {
+  function insetBlockToTarget(block, targetBlock) {
     if (getBlockType(block) === getBlockType(targetBlock)) {
       console.error("不能插入到相同类型的块里面");
       return;
@@ -199,21 +199,22 @@
     }
   }
 
-  const toolbarStyle = {
+  const TOOLBAR_STYLE = {
     height: 120,
     margin: 8,
   };
   const toolbar = document.querySelector(".tool-bar");
-  const position = {
+  const POSITION = {
     slot: { x: "14px", y: "14px" },
     block: { x: "130px", y: "18px" },
   };
-  const zIndex = {
+  const Z_INDEX = {
     slot: 0,
     block: 1,
   };
   // 过度动画时长
-  const duration = 200;
+  const DURATION = 200;
+
   let activeBlock = null;
   let offsetX = 0;
   let offsetY = 0;
@@ -221,11 +222,11 @@
   const slot = createSlot();
   const block = createBlock();
 
-  mount(document.body, slot, position.slot);
-  mount(document.body, block, position.block);
+  mount(document.body, slot, POSITION.slot);
+  mount(document.body, block, POSITION.block);
 
-  toolbar.style.height = toolbarStyle.height + "px";
-  toolbar.style.margin = toolbarStyle.margin + "px";
+  toolbar.style.height = TOOLBAR_STYLE.height + "px";
+  toolbar.style.margin = TOOLBAR_STYLE.margin + "px";
 
   function createSlot() {
     const slot = createBlock$1({
@@ -253,76 +254,81 @@
   }
 
   function onMouseKeyDown(e) {
-    if (isBlock(e.target)) {
-      const nearestBlock = getNearestOverlappingBlock(e.target);
-      activeBlock = e.target;
-      activeBlock.style.transition = ``;
-      activeBlock._inserted = false;
-      if (
-        nearestBlock &&
-        getNearestOverlappingBlock(nearestBlock) === activeBlock
-      )
-        nearestBlock._inserted = false;
-      offsetX = e.offsetX;
-      offsetY = e.offsetY;
-      activeBlock.style.zIndex = 100;
-      e.target._clickInToolbarArea = isInToolbarArea(e.target);
+    if (!isBlock(e.target)) {
+      return;
     }
+    const nearestBlock = getNearestOverlappingBlock(e.target);
+    activeBlock = e.target;
+    activeBlock.style.transition = ``;
+    // 当前 block 是否已被插入其它 block 中
+    activeBlock._inserted = false;
+    if (
+      nearestBlock &&
+      getNearestOverlappingBlock(nearestBlock) === activeBlock
+    ) {
+      nearestBlock._inserted = false;
+    }
+    offsetX = e.offsetX;
+    offsetY = e.offsetY;
+    activeBlock.style.zIndex = 100;
+    e.target._clickInToolbarArea = isInToolbarArea(e.target);
   }
 
   function onMouseKeyUp(e) {
-    if (isBlock(e.target) && activeBlock) {
-      if (e.target._clickInToolbarArea && !isInToolbarArea(e.target)) {
-        const type = getBlockType(e.target);
-        const map = {
-          slot: createSlot,
-          block: createBlock,
-        };
-        const newBlock = map[type]();
-        mount(document.body, newBlock);
-        moveBlock(newBlock, position[type]);
-      } else if (e.target._clickInToolbarArea) {
-        activeBlock.style.left = position[getBlockType(activeBlock)].x;
-        activeBlock.style.top = position[getBlockType(activeBlock)].y;
-      }
-      if (getNearestOverlappingBlock(activeBlock, (block) => !block._inserted)) {
-        const nearestBlock = getNearestOverlappingBlock(
-          activeBlock,
-          (block) => !block._inserted
-        );
-        activeBlock.style.transition = `all ${duration}ms`;
-        insetWhenOverlapping(activeBlock, nearestBlock);
-        nearestBlock._inserted = true;
-        activeBlock._inserted = true;
-      }
-      activeBlock.style.zIndex = zIndex[getBlockType(activeBlock)];
-      activeBlock = null;
-      offsetX = 0;
-      offsetY = 0;
+    if (!isBlock(e.target) || !activeBlock) {
+      return;
     }
+    if (e.target._clickInToolbarArea && !isInToolbarArea(e.target)) {
+      const type = getBlockType(e.target);
+      const map = {
+        slot: createSlot,
+        block: createBlock,
+      };
+      const newBlock = map[type]();
+      mount(document.body, newBlock);
+      moveBlock(newBlock, POSITION[type]);
+    } else if (e.target._clickInToolbarArea) {
+      activeBlock.style.left = POSITION[getBlockType(activeBlock)].x;
+      activeBlock.style.top = POSITION[getBlockType(activeBlock)].y;
+    }
+    if (getNearestOverlappingBlock(activeBlock, (block) => !block._inserted)) {
+      const nearestBlock = getNearestOverlappingBlock(
+        activeBlock,
+        (block) => !block._inserted
+      );
+      activeBlock.style.transition = `all ${DURATION}ms`;
+      insetBlockToTarget(activeBlock, nearestBlock);
+      nearestBlock._inserted = true;
+      activeBlock._inserted = true;
+    }
+    activeBlock.style.zIndex = Z_INDEX[getBlockType(activeBlock)];
+    activeBlock = null;
+    offsetX = 0;
+    offsetY = 0;
   }
 
   document.addEventListener("mousemove", (e) => {
-    if (activeBlock) {
-      moveBlock(activeBlock, {
-        x: e.clientX - offsetX + "px",
-        y:
-          Math.max(
-            e.clientY - offsetY,
-            activeBlock._clickInToolbarArea
-              ? 0
-              : toolbarStyle.height + toolbarStyle.margin * 2
-          ) + "px",
-      });
-      if (!isInToolbarArea(activeBlock)) {
-        updateBlockStyleWhenOverlapping(
-          activeBlock,
-          getBlockType(activeBlock) === "slot" ? { borderColor: "red" } : {},
-          { borderColor: "red" },
-          (block, targetBlock) => !block._inserted && !targetBlock?._inserted,
-          (block) => !block._inserted
-        );
-      }
+    if (!activeBlock) {
+      return;
+    }
+    moveBlock(activeBlock, {
+      x: e.clientX - offsetX + "px",
+      y:
+        Math.max(
+          e.clientY - offsetY,
+          activeBlock._clickInToolbarArea
+            ? 0
+            : TOOLBAR_STYLE.height + TOOLBAR_STYLE.margin * 2
+        ) + "px",
+    });
+    if (!isInToolbarArea(activeBlock)) {
+      updateBlockStyleWhenOverlapping(
+        activeBlock,
+        getBlockType(activeBlock) === "slot" ? { borderColor: "red" } : {},
+        { borderColor: "red" },
+        (block, targetBlock) => !block._inserted && !targetBlock?._inserted,
+        (block) => !block._inserted
+      );
     }
   });
 

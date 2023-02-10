@@ -6,7 +6,7 @@ import {
   getOverlappingBlocks,
   initList,
   updateBlockStyleWhenOverlapping,
-  insetWhenOverlapping,
+  insetBlockToTarget,
   getNearestOverlappingBlock,
 } from "../src/block";
 
@@ -380,7 +380,7 @@ describe("inset to other block", () => {
     mount(document.body, block, { x: "200px", y: "200px" });
 
     moveBlock(block, { x: "50px", y: "50px" });
-    insetWhenOverlapping(block, slot);
+    insetBlockToTarget(block, slot);
     const blockRect = block.getBoundingClientRect();
     expect(blockRect.left).toBe(3);
     expect(blockRect.top).toBe(3);
@@ -403,7 +403,7 @@ describe("inset to other block", () => {
     mount(document.body, block, { x: "200px", y: "200px" });
 
     moveBlock(slot, { x: "150px", y: "150px" });
-    insetWhenOverlapping(slot, block);
+    insetBlockToTarget(slot, block);
     const slotRect = slot.getBoundingClientRect();
     expect(slotRect.left).toBe(197);
     expect(slotRect.top).toBe(197);
