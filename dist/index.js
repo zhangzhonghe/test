@@ -163,8 +163,8 @@
   }
 
   const position = {
-    slot: { x: "10px", y: "10px" },
-    block: { x: "125px", y: "10px" },
+    slot: { x: "14px", y: "14px" },
+    block: { x: "130px", y: "18px" },
   };
   let activeBlock = null;
   let offsetX = 0;
@@ -173,10 +173,8 @@
   const slot = createSlot();
   const block = createBlock();
 
-  mount(document.body, slot);
-  mount(document.body, block);
-  moveBlock(slot, position.slot);
-  moveBlock(block, position.block);
+  mount(document.body, slot, position.slot);
+  mount(document.body, block, position.block);
 
   function createSlot() {
     const slot = createBlock$1({
