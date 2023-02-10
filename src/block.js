@@ -56,10 +56,10 @@ export function moveBlock(block, position) {
 /**
  * 获取与当前元素重叠的 block，不包括相同类型的 block
  */
-export function getOverlappingBlocks(block) {
+export function getOverlappingBlocks(block, filter = (block, index) => true) {
   const result = [];
   const elementRect = block.getBoundingClientRect();
-  blockList.forEach((item) => {
+  blockList.filter(filter).forEach((item) => {
     if (getBlockType(item) === getBlockType(block)) {
       return;
     }
@@ -79,8 +79,8 @@ export function getOverlappingBlocks(block) {
 /**
  * 获取与当前块重叠并距离最近的 block
  */
-export function getNearestOverlappingBlock(block) {
-  const overlappingBlocks = getOverlappingBlocks(block);
+export function getNearestOverlappingBlock(block, filter) {
+  const overlappingBlocks = getOverlappingBlocks(block, filter);
   if (overlappingBlocks.length === 0) {
     return null;
   }
@@ -110,9 +110,13 @@ export function updateBlockStyleWhenOverlapping(
   movingBlock,
   movingBlockStyle,
   staticBlockStyle,
-  shouldChange = () => true
+  shouldChange = () => true,
+  filter
 ) {
-  const nearestOverlappingBlock = getNearestOverlappingBlock(movingBlock);
+  const nearestOverlappingBlock = getNearestOverlappingBlock(
+    movingBlock,
+    filter
+  );
   if (!shouldChange(movingBlock, nearestOverlappingBlock)) return;
   // 有重叠
   if (nearestOverlappingBlock) {

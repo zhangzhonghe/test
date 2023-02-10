@@ -150,6 +150,20 @@ describe("get overlapping elements", () => {
     expect(getOverlappingBlocks(block).length).toBe(2);
     expect(getNearestOverlappingBlock(block)).toBe(slot2);
   });
+
+  test("filter", () => {
+    const slot = createBlock({ type: "slot", width: "100px", height: "100px" });
+    const block = createBlock({
+      type: "block",
+      width: "100px",
+      height: "100px",
+    });
+    const filter = () => false;
+    mount(document.body, slot, { x: "0px", y: "0px" });
+    mount(document.body, block, { x: "50px", y: "50px" });
+    expect(getOverlappingBlocks(slot, filter).length).toBe(0);
+    expect(getOverlappingBlocks(block, filter).length).toBe(0);
+  });
 });
 
 describe("update block style when overlapping", () => {

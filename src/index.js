@@ -95,14 +95,15 @@ function onMouseKeyUp(e) {
       activeBlock.style.left = position[getBlockType(activeBlock)].x;
       activeBlock.style.top = position[getBlockType(activeBlock)].y;
     }
-    if (getNearestOverlappingBlock(activeBlock)) {
-      const nearestBlock = getNearestOverlappingBlock(activeBlock);
-      if (!nearestBlock._inserted) {
-        activeBlock.style.transition = `all ${duration}ms`;
-        insetWhenOverlapping(activeBlock, nearestBlock);
-        nearestBlock._inserted = true;
-        activeBlock._inserted = true;
-      }
+    if (getNearestOverlappingBlock(activeBlock, (block) => !block._inserted)) {
+      const nearestBlock = getNearestOverlappingBlock(
+        activeBlock,
+        (block) => !block._inserted
+      );
+      activeBlock.style.transition = `all ${duration}ms`;
+      insetWhenOverlapping(activeBlock, nearestBlock);
+      nearestBlock._inserted = true;
+      activeBlock._inserted = true;
     }
     activeBlock.style.zIndex = zIndex[getBlockType(activeBlock)];
     activeBlock = null;
@@ -128,7 +129,8 @@ document.addEventListener("mousemove", (e) => {
         activeBlock,
         getBlockType(activeBlock) === "slot" ? { borderColor: "red" } : {},
         { borderColor: "red" },
-        (block, targetBlock) => !block._inserted && !targetBlock?._inserted
+        (block, targetBlock) => !block._inserted && !targetBlock?._inserted,
+        (block) => !block._inserted
       );
     }
   }
