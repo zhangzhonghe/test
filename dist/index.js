@@ -162,6 +162,36 @@
     }
   }
 
+  /**
+   * 将 block 插入到 targetBlock 中
+   */
+  function insetWhenOverlapping(block, targetBlock) {
+    if (getBlockType(block) === getBlockType(targetBlock)) {
+      console.error("不能插入到相同类型的块里面");
+      return;
+    }
+    if (getBlockType(targetBlock) === "slot") {
+      block.style.left =
+        parseFloat(targetBlock.style.left) +
+        parseFloat(targetBlock.style.borderWidth) +
+        "px";
+      block.style.top =
+        parseFloat(targetBlock.style.top) +
+        parseFloat(targetBlock.style.borderWidth) +
+        "px";
+    }
+    if (getBlockType(targetBlock) === "block") {
+      block.style.left =
+        parseFloat(targetBlock.style.left) -
+        parseFloat(block.style.borderWidth) +
+        "px";
+      block.style.top =
+        parseFloat(targetBlock.style.top) -
+        parseFloat(block.style.borderWidth) +
+        "px";
+    }
+  }
+
   const toolbarStyle = {
     height: 120,
     margin: 8,
@@ -241,6 +271,9 @@
       } else if (e.target._clickInToolbarArea) {
         activeBlock.style.left = position[getBlockType(activeBlock)].x;
         activeBlock.style.top = position[getBlockType(activeBlock)].y;
+      } else if (getNearestOverlappingBlock(activeBlock)) {
+        const nearestBlock = getNearestOverlappingBlock(activeBlock);
+        insetWhenOverlapping(activeBlock, nearestBlock);
       }
       activeBlock.style.zIndex = zIndex[getBlockType(activeBlock)];
       activeBlock = null;

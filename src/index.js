@@ -5,6 +5,8 @@ import {
   isBlock,
   getBlockType,
   updateBlockStyleWhenOverlapping,
+  getNearestOverlappingBlock,
+  insetWhenOverlapping,
 } from "./block";
 
 const toolbarStyle = {
@@ -86,6 +88,9 @@ function onMouseKeyUp(e) {
     } else if (e.target._clickInToolbarArea) {
       activeBlock.style.left = position[getBlockType(activeBlock)].x;
       activeBlock.style.top = position[getBlockType(activeBlock)].y;
+    } else if (getNearestOverlappingBlock(activeBlock)) {
+      const nearestBlock = getNearestOverlappingBlock(activeBlock);
+      insetWhenOverlapping(activeBlock, nearestBlock);
     }
     activeBlock.style.zIndex = zIndex[getBlockType(activeBlock)];
     activeBlock = null;
