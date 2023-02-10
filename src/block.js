@@ -140,6 +140,7 @@ export function updateBlockStyleWhenOverlapping(
     // 没有重叠
   } else if (movingBlock._nearestOverlappingBlock) {
     restStyle();
+    movingBlock._nearestOverlappingBlock = null;
   }
 
   function restStyle() {

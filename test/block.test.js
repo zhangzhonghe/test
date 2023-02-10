@@ -266,6 +266,45 @@ describe("update block style when overlapping", () => {
     expect(getComputedStyle(slot1).borderColor).toBe("black");
     expect(getComputedStyle(slot2).borderColor).toBe("red");
   });
+
+  test("the far block should not affect slot again", () => {
+    const slot = createBlock({
+      type: "slot",
+      width: "100px",
+      height: "100px",
+      border: "black solid 3px",
+    });
+    const block1 = createBlock({
+      type: "block",
+      width: "100px",
+      height: "100px",
+    });
+    const block2 = createBlock({
+      type: "block",
+      width: "100px",
+      height: "100px",
+    });
+    mount(document.body, slot, { x: "0px", y: "0px" });
+    mount(document.body, block1, { x: "200px", y: "0px" });
+    mount(document.body, block2, { x: "400px", y: "0px" });
+
+    moveBlock(block1, { x: "90px", y: "0px" });
+    updateBlockStyleWhenOverlapping(block1, {}, { borderColor: "red" });
+    expect(getComputedStyle(slot).borderColor).toBe("red");
+
+    moveBlock(block1, { x: "200px", y: "0px" });
+    updateBlockStyleWhenOverlapping(block1, {}, { borderColor: "red" });
+    expect(getComputedStyle(slot).borderColor).toBe("black");
+
+    moveBlock(block2, { x: "90px", y: "0px" });
+    updateBlockStyleWhenOverlapping(block2, {}, { borderColor: "red" });
+    expect(getComputedStyle(slot).borderColor).toBe("red");
+
+    // slot's border color should still be red
+    moveBlock(block1, { x: "201px", y: "0px" });
+    updateBlockStyleWhenOverlapping(block1, {}, { borderColor: "red" });
+    expect(getComputedStyle(slot).borderColor).toBe("red");
+  });
 });
 
 describe("inset to other block", () => {
