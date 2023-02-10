@@ -9,7 +9,7 @@
   },
   "scripts": {
     "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
-    "build": "rollup src/main.js --file dist/index.js --format iife"
+    "build": "rollup src/main.js --file public/dist/index.js --format iife"
   },
   "repository": {
     "type": "git",
