@@ -151,5 +151,5 @@ document.addEventListener("mousemove", (e) => {
  */
 function isInToolbarArea(block) {
   const top = parseFloat(block.style.top);
-  return top <= 120;
+  return top <= TOOLBAR_STYLE.height;
 }
